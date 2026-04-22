@@ -51,15 +51,17 @@ void Decide() {
       if (ch >= '1' && ch <= '8') {
         int num = ch - '0';
         int unknown = 0;
+        int marked_count = 0;
         for (int dr = -1; dr <= 1; ++dr) {
           for (int dc = -1; dc <= 1; ++dc) {
             if (dr == 0 && dc == 0) continue;
             int nr = i + dr, nc = j + dc;
             if (nr < 0 || nr >= rows || nc < 0 || nc >= columns) continue;
             if (cur_map[nr][nc] == '?') unknown++;
+            else if (cur_map[nr][nc] == '@') marked_count++;
           }
         }
-        if (unknown == num) {
+        if (unknown > 0 && (num - marked_count) == unknown) {
           for (int dr = -1; dr <= 1; ++dr) {
             for (int dc = -1; dc <= 1; ++dc) {
               if (dr == 0 && dc == 0) continue;
