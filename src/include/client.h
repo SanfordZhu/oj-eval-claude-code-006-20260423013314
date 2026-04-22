@@ -97,6 +97,13 @@ void Decide() {
       if (cur_map[i][j] == '?') { Execute(i, j, 0); return; }
     }
   }
+  // 4) Fallback: ensure we call Execute exactly once per Decide
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < columns; ++j) {
+      if (cur_map[i][j] >= '0' && cur_map[i][j] <= '8') { Execute(i, j, 2); return; }
+    }
+  }
+  Execute(0, 0, 2);
 }
 
 #endif
