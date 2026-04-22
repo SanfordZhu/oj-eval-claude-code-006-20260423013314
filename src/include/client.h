@@ -74,32 +74,48 @@ void Decide() {
       }
     }
   }
-  // 2) Try auto-explore where marked neighbors equal number
+  // 2) Try auto-explore where marked neighbors equal number (and there is at least one unknown neighbor)
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < columns; ++j) {
       char ch = cur_map[i][j];
-      if (ch >= '1' && ch <= '8' || ch == '0') {
+      if ((ch >= '1' && ch <= '8') || ch == '0') {
         int num = (ch == '0') ? 0 : ch - '0';
-        int marked_mines = 0;
+        int marked_mines = 0, unknown = 0;
         for (int dr = -1; dr <= 1; ++dr) {
           for (int dc = -1; dc <= 1; ++dc) {
             if (dr == 0 && dc == 0) continue;
             int nr = i + dr, nc = j + dc;
             if (nr < 0 || nr >= rows || nc < 0 || nc >= columns) continue;
             if (cur_map[nr][nc] == '@') marked_mines++;
+            else if (cur_map[nr][nc] == '?') unknown++;
           }
         }
-        if (marked_mines == num) { Execute(i, j, 2); return; }
+        if (unknown > 0 && marked_mines == num) { Execute(i, j, 2); return; }
       }
     }
   }
-  // 3) Otherwise visit first unknown
+  // 3) Prefer visiting a '?' adjacent to any '0' cell
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < columns; ++j) {
+      if (cur_map[i][j] == '0') {
+        for (int dr = -1; dr <= 1; ++dr) {
+          for (int dc = -1; dc <= 1; ++dc) {
+            if (dr == 0 && dc == 0) continue;
+            int nr = i + dr, nc = j + dc;
+            if (nr < 0 || nr >= rows || nc < 0 || nc >= columns) continue;
+            if (cur_map[nr][nc] == '?') { Execute(nr, nc, 0); return; }
+          }
+        }
+      }
+    }
+  }
+  // 4) Otherwise visit first unknown
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < columns; ++j) {
       if (cur_map[i][j] == '?') { Execute(i, j, 0); return; }
     }
   }
-  // 4) Fallback: ensure we call Execute exactly once per Decide
+  // 5) Fallback: ensure we call Execute exactly once per Decide
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < columns; ++j) {
       if (cur_map[i][j] >= '0' && cur_map[i][j] <= '8') { Execute(i, j, 2); return; }
